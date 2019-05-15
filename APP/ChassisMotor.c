@@ -64,6 +64,7 @@ void chassis_init(void)
     chassis_move.vy_max_speed = NORMAL_MAX_CHASSIS_SPEED_Y;
     chassis_move.vy_min_speed = -NORMAL_MAX_CHASSIS_SPEED_Y;
 
+    chassis_move.time=0;
     //更新一下数据
     chassis_feedback_update(&chassis_move);
 }
@@ -223,17 +224,19 @@ static void chassis_set_contorl(chassis_move_t *chassis_move_control)
   * @version	1.0.0
   * @history
   */
+
 static void chassis_vector_to_mecanum_wheel_speed(const fp32 vx_set, const fp32 vy_set, const fp32 wz_set)
 {
-    fp32 speed_change=2.0f;
-//    if(chassis_move.chassis_RC->key.v & KEY_PRESSED_OFFSET_SHIFT || chassis_move.chassis_RC->rc.s[0]==1)
-//        speed_change=1.0f;
-//    else
-        speed_change=2.0f;
-    chassis_move.motor_chassis[0].speed_set = - vx_set + vy_set + wz_set * CHASSIS_WZ_RC_SEN;
-    chassis_move.motor_chassis[1].speed_set =   vx_set + vy_set + wz_set * CHASSIS_WZ_RC_SEN;
-    chassis_move.motor_chassis[2].speed_set = - vx_set - vy_set + wz_set * CHASSIS_WZ_RC_SEN;
-    chassis_move.motor_chassis[3].speed_set =   vx_set - vy_set + wz_set * CHASSIS_WZ_RC_SEN;
+    fp32 speed_change=1.0f;
+    chassis_move.time+=0.0008;
+    if(chassis_move.time>4)
+        chassis_move.time-=8;
+    if((switch_is_up(chassis_move.chassis_RC->rc.s[Shoot_RC_Channel])))
+        chassis_move.time=0;
+    chassis_move.motor_chassis[0].speed_set =  -chassis_move.time ;
+    chassis_move.motor_chassis[1].speed_set =  -chassis_move.time ;
+    chassis_move.motor_chassis[2].speed_set =  -chassis_move.time ;
+    chassis_move.motor_chassis[3].speed_set =  -chassis_move.time ;
     for(int i = 0; i < 4; i++)
         chassis_move.motor_chassis[i].speed_set /= speed_change;
 }
@@ -250,6 +253,7 @@ static void chassis_vector_to_mecanum_wheel_speed(const fp32 vx_set, const fp32 
 static void chassis_feedback_update(chassis_move_t *chassis_move_update)
 {
     uint8_t i = 0;
+        chassis_move.time+=2;
     for (i = 0; i < 4; i++)
     {
         //更新电机速度，加速度是速度的PID积分
@@ -293,7 +297,7 @@ void chassis_rc_to_control_vector(fp32 *vx_set, fp32 *vy_set, chassis_move_t *ch
     rc_deadline_limit(chassis_move_rc_to_vector->chassis_RC->rc.ch[CHASSIS_Y_CHANNEL], vy_channel, CHASSIS_RC_DEADLINE);
 
     vx_set_channel = vx_channel * CHASSIS_VX_RC_SEN;
-    vy_set_channel = vy_channel * -CHASSIS_VY_RC_SEN;
+    vy_set_channel = vy_channel * CHASSIS_VY_RC_SEN;
 
     if (chassis_move_rc_to_vector->chassis_RC->key.v & CHASSIS_FRONT_KEY)
     {

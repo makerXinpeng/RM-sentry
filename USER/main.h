@@ -50,7 +50,7 @@ typedef double fp64;
 #ifndef NULL
 #define NULL 0
 #endif
-
+#define CLOCK_TIME 50000
 #ifndef PI
 #define PI 3.14159265358979f
 #endif

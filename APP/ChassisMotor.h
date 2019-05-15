@@ -76,7 +76,7 @@
 
 
 //底盘电机速度环PID
-#define M3508_MOTOR_SPEED_PID_KP 15000.0f
+#define M3508_MOTOR_SPEED_PID_KP 500.0f
 #define M3508_MOTOR_SPEED_PID_KI 10.0f
 #define M3508_MOTOR_SPEED_PID_KD 0.0f
 #define M3508_MOTOR_SPEED_PID_MAX_OUT MAX_MOTOR_CAN_CURRENT
@@ -148,6 +148,7 @@ typedef struct
     fp32 chassis_yaw;   //陀螺仪和云台电机叠加的yaw角度
     fp32 chassis_pitch; //陀螺仪和云台电机叠加的pitch角度
     fp32 chassis_roll;  //陀螺仪和云台电机叠加的roll角度
+    fp32 time;
 
 } chassis_move_t;
 

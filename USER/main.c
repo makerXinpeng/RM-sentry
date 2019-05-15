@@ -39,7 +39,11 @@
 
 //四个24v 输出 依次开启 间隔 709us
 #define POWER_CTRL_ONE_BY_ONE_TIME 709
-
+int COUNT_CLOCK = 0;
+int get_COUNT_CLOCK(void)
+{
+		return COUNT_CLOCK;
+}
 void BSP_init(void);
 
 int main(void)
