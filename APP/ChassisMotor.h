@@ -152,6 +152,9 @@ typedef struct
 
 } chassis_move_t;
 
+#define TIME_MAX 8
+#define CHAISIS_SPEED 1.45
+
 extern chassis_move_t chassis_move;
 
 void chassis_init(void);

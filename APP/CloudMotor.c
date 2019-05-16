@@ -1,5 +1,6 @@
 #include "CloudMotor.h"
 
+
 //电机编码值规整 0—8191
 #define ECD_Format(ecd)         \
     {                           \

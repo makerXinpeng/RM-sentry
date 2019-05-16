@@ -22,6 +22,8 @@ static void chassis_vector_to_mecanum_wheel_speed(const fp32 vx_set, const fp32 
 static void chassis_infantry_follow_gimbal_yaw_control(fp32 *vx_set, fp32 *vy_set, fp32 *angle_set, chassis_move_t *chassis_move_rc_to_vector);
 //void chassis_mode_change_control_transit(chassis_move_t *chassis_move_transit);
 static void chassis_set_contorl(chassis_move_t *chassis_move_control);
+		
+				bool_t mark = 1;
 
 /**
   * @brief	    电机PID参数配置
@@ -228,15 +230,32 @@ static void chassis_set_contorl(chassis_move_t *chassis_move_control)
 static void chassis_vector_to_mecanum_wheel_speed(const fp32 vx_set, const fp32 vy_set, const fp32 wz_set)
 {
     fp32 speed_change=1.0f;
-    chassis_move.time+=0.0008;
-    if(chassis_move.time>4)
-        chassis_move.time-=8;
+		if (chassis_move.time > TIME_MAX &&mark) 
+		{
+			chassis_move.time = 0;
+			mark = !mark;
+		}
+		else if (chassis_move.time > 2 * TIME_MAX && !mark)
+		{
+			chassis_move.time = 0;
+			mark = !mark;
+		}
+		chassis_move.time = chassis_move.time + 0.01;
+		
     if((switch_is_up(chassis_move.chassis_RC->rc.s[Shoot_RC_Channel])))
-        chassis_move.time=0;
-    chassis_move.motor_chassis[0].speed_set =  -chassis_move.time ;
-    chassis_move.motor_chassis[1].speed_set =  -chassis_move.time ;
-    chassis_move.motor_chassis[2].speed_set =  -chassis_move.time ;
-    chassis_move.motor_chassis[3].speed_set =  -chassis_move.time ;
+			{
+					chassis_move.motor_chassis[0].speed_set =  0 ;
+					chassis_move.motor_chassis[1].speed_set =  0 ;
+					chassis_move.motor_chassis[2].speed_set =  0 ;
+					chassis_move.motor_chassis[3].speed_set =  0 ;
+			}
+			else
+			{
+					chassis_move.motor_chassis[0].speed_set =  -(mark ? 1:-1) *CHAISIS_SPEED;
+					chassis_move.motor_chassis[1].speed_set =  -(mark ? 1:-1) *CHAISIS_SPEED;
+					chassis_move.motor_chassis[2].speed_set =  -(mark ? 1:-1) *CHAISIS_SPEED ;
+					chassis_move.motor_chassis[3].speed_set =  -(mark ? 1:-1) *CHAISIS_SPEED ;
+			}
     for(int i = 0; i < 4; i++)
         chassis_move.motor_chassis[i].speed_set /= speed_change;
 }
@@ -253,7 +272,6 @@ static void chassis_vector_to_mecanum_wheel_speed(const fp32 vx_set, const fp32 
 static void chassis_feedback_update(chassis_move_t *chassis_move_update)
 {
     uint8_t i = 0;
-        chassis_move.time+=2;
     for (i = 0; i < 4; i++)
     {
         //更新电机速度，加速度是速度的PID积分
