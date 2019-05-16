@@ -11,6 +11,7 @@
 #include "user_lib.h"
 #include "arm_math.h"
 
+
 //前后的遥控器通道号码
 #define CHASSIS_X_CHANNEL 3
 //左右的遥控器通道号码
@@ -148,11 +149,10 @@ typedef struct
     fp32 chassis_yaw;   //陀螺仪和云台电机叠加的yaw角度
     fp32 chassis_pitch; //陀螺仪和云台电机叠加的pitch角度
     fp32 chassis_roll;  //陀螺仪和云台电机叠加的roll角度
-    fp32 time;
 
 } chassis_move_t;
 
-#define TIME_MAX 8
+#define TIME_MAX 209
 #define CHAISIS_SPEED 1.45
 
 extern chassis_move_t chassis_move;

@@ -24,6 +24,7 @@ static void chassis_infantry_follow_gimbal_yaw_control(fp32 *vx_set, fp32 *vy_se
 static void chassis_set_contorl(chassis_move_t *chassis_move_control);
 		
 				bool_t mark = 1;
+	int round_counting = 0;
 
 /**
   * @brief	    电机PID参数配置
@@ -66,7 +67,6 @@ void chassis_init(void)
     chassis_move.vy_max_speed = NORMAL_MAX_CHASSIS_SPEED_Y;
     chassis_move.vy_min_speed = -NORMAL_MAX_CHASSIS_SPEED_Y;
 
-    chassis_move.time=0;
     //更新一下数据
     chassis_feedback_update(&chassis_move);
 }
@@ -230,22 +230,21 @@ static void chassis_set_contorl(chassis_move_t *chassis_move_control)
 static void chassis_vector_to_mecanum_wheel_speed(const fp32 vx_set, const fp32 vy_set, const fp32 wz_set)
 {
     fp32 speed_change=1.0f;
-		if (chassis_move.time > TIME_MAX &&mark) 
+		if (	(CMEncoder[0].round_cnt - round_counting) == -TIME_MAX  &&mark) 
 		{
-			chassis_move.time = 0;
 			mark = !mark;
+			round_counting = CMEncoder[0].round_cnt;
 		}
-		else if (chassis_move.time > 2 * TIME_MAX && !mark)
+		else if (	(CMEncoder[0].round_cnt - round_counting) == (2*TIME_MAX)  && !mark)
 		{
-			chassis_move.time = 0;
 			mark = !mark;
+			round_counting = CMEncoder[0].round_cnt;
 		}
-		chassis_move.time = chassis_move.time + 0.01;
 		
     if((switch_is_up(chassis_move.chassis_RC->rc.s[Shoot_RC_Channel])))
 			{
-					chassis_move.motor_chassis[0].speed_set =  0 ;
-					chassis_move.motor_chassis[1].speed_set =  0 ;
+					chassis_move.motor_chassis[0].speed_set =  chassis_move.chassis_RC->rc.ch[CHASSIS_X_CHANNEL] * CHAISIS_SPEED /660 ;
+					chassis_move.motor_chassis[1].speed_set =  chassis_move.chassis_RC->rc.ch[CHASSIS_X_CHANNEL] * CHAISIS_SPEED /660  ;
 					chassis_move.motor_chassis[2].speed_set =  0 ;
 					chassis_move.motor_chassis[3].speed_set =  0 ;
 			}
